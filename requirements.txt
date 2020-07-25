@@ -1,0 +1,3 @@
+torchsummary==1.5.1
+tqdm
+tensorboardx
