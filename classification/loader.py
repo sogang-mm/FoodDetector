@@ -2,12 +2,13 @@ from torch.utils.data import Dataset
 from torchvision.datasets.folder import default_loader
 from torchvision.transforms import transforms as trn
 import os
+from autoaugment import ImageNetPolicy
 
 
-class TxtDataset(Dataset):
+class TXTDataset(Dataset):
     def __init__(self, txt, labels, root, transform=None):
         self.root = root
-        self.labels = labels
+        self.labels = {i.strip(): n for n, i in enumerate(open(labels, 'r').readlines())}
         self.l = self.open(txt)
         self.loader = default_loader
 
@@ -19,25 +20,37 @@ class TxtDataset(Dataset):
         if transform is not None:
             self.transform = transform
 
+        self.target_transform = lambda labels, x: labels[x]
+
     def __getitem__(self, idx):
         label, im = self.l[idx]
         path = os.path.join(self.root, label, im)
         image = self.transform(self.loader(path))
+        target = self.target_transform(self.labels, label)
 
-        return self.labels[label.lower().replace('_',' ')], path, image
+        return target, path, image
 
     def open(self, txt):
         with open(txt, 'r') as f:
-            l = [(i.strip() + '.jpg').split('/') for i in f.readlines()]
+            l = [(os.path.dirname(i), os.path.basename(i.strip())) for i in f.readlines()]
 
         return l
+
     def __len__(self):
         return len(self.l)
 
 
 if __name__ == '__main__':
-    labels = {i.strip().lower(): n for n, i in enumerate(open('/nfs_shared/food-101/meta/labels.txt', 'r').readlines())}
-    print(labels)
-    dt = TxtDataset('/nfs_shared/food-101/meta/train.txt', labels, '/nfs_shared/food-101/images')
-    for l, p, i in dt:
+    from torch.utils.data import DataLoader
+    # nf=open('/nfs_shared/food-101/meta/test2.txt', 'w')
+    # with open('/nfs_shared/food-101/meta/test.txt', 'r') as f:
+    #     l = [i.strip() + '.jpg\n' for i in f.readlines()]
+    #     nf.writelines(l)
+    # exit()
+
+    # dt = TXTDataset('/nfs_shared/food-101/meta/train2.txt', '/nfs_shared/food-101/meta/classes.txt',
+    #                 '/nfs_shared/food-101/images')
+    dt = TXTDataset('/nfs_shared/kfood/meta/train.txt', '/nfs_shared/kfood/meta/classes.txt',
+                    '/nfs_shared/kfood/images')
+    for l, p, i in DataLoader(dt,batch_size=64):
         print(l, p)
