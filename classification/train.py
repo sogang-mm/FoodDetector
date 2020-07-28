@@ -92,7 +92,8 @@ def main():
                                                      [0.229, 0.224, 0.225])])}
 
     root = '/nfs_shared/food-101/images'
-    labels = {i.strip().lower(): n for n, i in enumerate(open('/nfs_shared/food-101/meta/labels.txt', 'r').readlines())}
+    # labels = {i.strip().lower(): n for n, i in enumerate(open('/nfs_shared/food-101/meta/labels.txt', 'r').readlines())}
+    labels = '/nfs_shared/food-101/meta/labels.txt'
     train_loader = DataLoader(TXTDataset('/nfs_shared/food-101/meta/train.txt', labels, root,
                                          transform=transform['train']), batch_size=64, num_workers=4, shuffle=True)
     valid_loader = DataLoader(TXTDataset('/nfs_shared/food-101/meta/test.txt', labels, root,
