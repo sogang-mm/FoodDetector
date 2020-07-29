@@ -99,7 +99,7 @@ def main():
     parser.add_argument('-lr', '--learning_rate', type=float, default=1e-3)
     parser.add_argument('-wd', '--weight_decay', type=float, default=5e-4)
     parser.add_argument('-batch', '--batch_size', type=int, default=64)
-    parser.add_argument('-save', '--save_dir', type=str, default=f'/hdd/ms/food_run')
+    parser.add_argument('-save', '--save_dir', type=str, default=f'/hdd/')
 
     args = parser.parse_args()
 
