@@ -15,8 +15,8 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes #prohibit-p
 
 WORKDIR /workspace
 ADD . .
+ENV PYTHONPATH $PYTHONPATH:/workspace
 
-RUN export PYTHONPATH=$PYTHONPATH:/workspace
 RUN pip install -r requirements.txt
 
 RUN chmod -R a+w /workspace
