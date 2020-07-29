@@ -22,7 +22,7 @@ def train(model, loader, criterion, optimizer, epoch):
     correct = AverageMeter()
 
     model.train()
-    pbar = tqdm(loader, ncols=250)
+    pbar = tqdm(loader, ncols=150)
     for i, (label, path, image) in enumerate(loader, start=1):
         optimizer.zero_grad()
         outputs = model(image.cuda())
@@ -52,7 +52,7 @@ def valid(model, loader, criterion, epoch):
     losses = AverageMeter()
     correct = AverageMeter()
     model.eval()
-    pbar = tqdm(loader, ncols=250)
+    pbar = tqdm(loader, ncols=150)
     with torch.no_grad():
         for i, (label, path, image) in enumerate(loader, start=1):
             outputs = model(image.cuda())
@@ -79,6 +79,8 @@ def init_logger(save_dir):
     c_time = datetime.now().strftime("%Y%m%d/%H%M%S")
     log_dir = f'/{save_dir}/{c_time}'
     log_txt = f'/{save_dir}/{c_time}/log.txt'
+    global writer
+    global logger
     writer = SummaryWriter(log_dir)
 
     logger = logging.getLogger(c_time)
@@ -103,8 +105,7 @@ def main():
 
     args = parser.parse_args()
 
-    global writer
-    global logger
+
     log_dir = init_logger(args.save_dir)
 
     transform = {'train': trn.Compose([trn.RandomRotation(30),
@@ -122,8 +123,9 @@ def main():
 
     root = '/nfs_shared/food/images'
     classes = '/nfs_shared/food/meta/classes.txt'
-    train_loader = DataLoader(TXTDataset('/nfs_shared/food/meta/train.txt', classes, root, transform=transform['train']),
-                              batch_size=args.batch_size, num_workers=4, shuffle=True)
+    train_loader = DataLoader(
+        TXTDataset('/nfs_shared/food/meta/train.txt', classes, root, transform=transform['train']),
+        batch_size=args.batch_size, num_workers=4, shuffle=True)
     valid_loader = DataLoader(TXTDataset('/nfs_shared/food/meta/test.txt', classes, root, transform=transform['valid']),
                               batch_size=args.batch_size, num_workers=4, shuffle=True)
 
