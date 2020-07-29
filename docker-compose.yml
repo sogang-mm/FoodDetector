@@ -2,6 +2,7 @@ version: '2.3'
 
 services:
   main:
+    container_name: container_name
     build:
       context: ./
       dockerfile: Dockerfile
@@ -16,7 +17,6 @@ services:
         volume:
           nocopy: true
       - "/media/mmlab/hdd:/hdd"
-      - "/etc/localtime:/etc/localtime:ro"
     expose:
       - "8000"
     ports:
