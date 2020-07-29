@@ -7,7 +7,7 @@ RUN apt-get update \
     git vim \
     openssh-server
 
-RUN apt-get install -y --no-install-recommends tzdata
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
 
 RUN pip install --upgrade pip
 RUN pip install setuptools
