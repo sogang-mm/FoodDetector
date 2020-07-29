@@ -48,9 +48,13 @@ if __name__ == '__main__':
     #     nf.writelines(l)
     # exit()
 
-    # dt = TXTDataset('/nfs_shared/food-101/meta/train2.txt', '/nfs_shared/food-101/meta/classes.txt',
-    #                 '/nfs_shared/food-101/images')
-    dt = TXTDataset('/nfs_shared/kfood/meta/train.txt', '/nfs_shared/kfood/meta/classes.txt',
+    dt = TXTDataset('/nfs_shared/food-101/meta/train2.txt', '/nfs_shared/food-101/meta/classes.txt',
+                    '/nfs_shared/food-101/images')
+    dt2 = TXTDataset('/nfs_shared/kfood/meta/test.txt', '/nfs_shared/kfood/meta/classes.txt',
                     '/nfs_shared/kfood/images')
-    for l, p, i in DataLoader(dt,batch_size=64):
+
+    dt3 = TXTDataset('/nfs_shared/food/meta/test.txt', '/nfs_shared/food/meta/classes.txt',
+                     '/nfs_shared/food/images')
+
+    for l, p, i in DataLoader(dt3,batch_size=128,num_workers=4):
         print(l, p)

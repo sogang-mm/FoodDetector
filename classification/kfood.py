@@ -4,15 +4,6 @@ from torch.utils.data import ConcatDataset
 from torchvision.datasets import ImageFolder
 
 
-class kfood:
-    def __init__(self, root):
-        self.root = root
-        self.dataset = ConcatDataset([ImageFolder(os.path.join(root, s)) for s in os.listdir(root)])
-        print(self.dataset.__len__())
-
-
-
-
 def kfood_split(root):
     train = open('/nfs_shared/kfood/meta/train.txt', 'w')
     test = open('/nfs_shared/kfood/meta/test.txt', 'w')

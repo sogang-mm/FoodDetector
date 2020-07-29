@@ -4,12 +4,12 @@ RUN apt-get update \
     && apt-get -y install python \
     python-pip \
     python-dev \
-    git\
+    git vim\
     openssh-server
 
 RUN pip install --upgrade pip
 RUN pip install setuptools
-
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes #prohibit-password/' /etc/ssh/sshd_config
 WORKDIR /workspace
 ADD . .
 

@@ -35,14 +35,14 @@ def train(model, loader, criterion, optimizer,epoch):
 
         pbar.set_description(f'[Epoch {epoch}] '
                              f'train_loss : {losses.val:.4f}({losses.avg:.4f}) '
-                             f'train_acc : {correct.val / loader.batch_size:.4f}({correct.sum / (i * loader.batch_size):.4f})')
+                             f'train_prec : {correct.val / loader.batch_size:.4f}({correct.sum / (i * loader.batch_size):.4f})')
         pbar.update()
     pbar.close()
     logger.info(f'[EPOCH {epoch}] train_loss : {losses.avg:.4f}, '
-                f'train_acc : {correct.sum / loader.dataset.__len__():.4f}')
+                f'train_prec : {correct.sum / loader.dataset.__len__():.4f}')
 
     writer.add_scalar('loss/train_loss', losses.avg, epoch)
-    writer.add_scalar('accuracy/train_acc', correct.sum / loader.dataset.__len__(), epoch)
+    writer.add_scalar('precision/train_precision', correct.sum / loader.dataset.__len__(), epoch)
 
     return losses, correct.sum / loader.dataset.__len__()
 
@@ -63,13 +63,13 @@ def valid(model, loader, criterion, epoch):
             correct.update(torch.sum(preds == label.cuda()).item())
             pbar.set_description(f'[Epoch {epoch}] '
                                  f'valid_loss : {losses.val:.4f}({losses.avg:.4f}) '
-                                 f'valid_acc : {correct.val / loader.batch_size:.4f}({correct.sum / (i * loader.batch_size):.4f})')
+                                 f'valid_prec : {correct.val / loader.batch_size:.4f}({correct.sum / (i * loader.batch_size):.4f})')
 
         pbar.close()
         logger.info(f'[EPOCH {epoch}] valid_loss : {losses.avg:.4f}, '
-                    f'valid_acc : {correct.sum / loader.dataset.__len__():.4f}')
+                    f'valid_prec : {correct.sum / loader.dataset.__len__():.4f}')
         writer.add_scalar('loss/valid_loss', losses.avg, epoch)
-        writer.add_scalar('accuracy/valid_acc', correct.sum / loader.dataset.__len__(), epoch)
+        writer.add_scalar('precision/valid_precision', correct.sum / loader.dataset.__len__(), epoch)
 
     return losses, correct.sum / loader.dataset.__len__()
 
@@ -91,12 +91,13 @@ def main():
                                        trn.Normalize([0.485, 0.456, 0.406],
                                                      [0.229, 0.224, 0.225])])}
 
-    root = '/nfs_shared/food-101/images'
+    # root = '/nfs_shared/food-101/images'
+    root = '/nfs_shared/food/images'
     # labels = {i.strip().lower(): n for n, i in enumerate(open('/nfs_shared/food-101/meta/labels.txt', 'r').readlines())}
-    labels = '/nfs_shared/food-101/meta/labels.txt'
-    train_loader = DataLoader(TXTDataset('/nfs_shared/food-101/meta/train.txt', labels, root,
+    labels = '/nfs_shared/food/meta/classes.txt'
+    train_loader = DataLoader(TXTDataset('/nfs_shared/food/meta/train.txt', labels, root,
                                          transform=transform['train']), batch_size=64, num_workers=4, shuffle=True)
-    valid_loader = DataLoader(TXTDataset('/nfs_shared/food-101/meta/test.txt', labels, root,
+    valid_loader = DataLoader(TXTDataset('/nfs_shared/food/meta/test.txt', labels, root,
                                          transform=transform['valid']), batch_size=64, num_workers=4, shuffle=True)
 
     c_time = datetime.now().strftime("%Y%m%d/%H%M%S")

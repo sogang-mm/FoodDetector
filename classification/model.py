@@ -43,7 +43,7 @@ class Resnet152(nn.Module):
         self.features = nn.Sequential(OrderedDict([*list(models.resnet152(pretrained=True).named_children())[:-2]]))
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(2048, 101)
+        self.fc = nn.Linear(2048, 101+150)
 
         self.init_fc()
         if freeze:
