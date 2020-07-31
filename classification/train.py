@@ -10,6 +10,8 @@ from datetime import datetime
 from tqdm import tqdm
 import logging
 import argparse
+import warnings
+warnings.filterwarnings("ignore")
 
 from classification.autoaugment import ImageNetPolicy
 from classification.Measure import AverageMeter
@@ -80,13 +82,13 @@ def init_logger(save_dir):
     log_dir = f'/{save_dir}/{c_time}'
     log_txt = f'/{save_dir}/{c_time}/log.txt'
     global writer
-    global logger
     writer = SummaryWriter(log_dir)
+    global logger
+    logger = logging.getLogger(c_time)
 
-    logger = logging.getLogger(c_time)
     logger.setLevel(logging.INFO)
     logger = logging.getLogger(c_time)
-    logger.setLevel(logging.INFO)
+
     fmt = logging.Formatter("[%(asctime)s] %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
     h_file = logging.FileHandler(filename=log_txt, mode='a')
     h_file.setFormatter(fmt)
@@ -98,10 +100,10 @@ def init_logger(save_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="Train for Food Classification.")
-    parser.add_argument('-lr', '--learning_rate', type=float, default=1e-3)
+    parser.add_argument('-lr', '--learning_rate', type=float, default=1e-4)
     parser.add_argument('-wd', '--weight_decay', type=float, default=5e-4)
     parser.add_argument('-batch', '--batch_size', type=int, default=64)
-    parser.add_argument('-save', '--save_dir', type=str, default=f'/hdd/')
+    parser.add_argument('-save', '--save_dir', type=str, default=f'/hdd/ms/food_run')
 
     args = parser.parse_args()
 
@@ -129,29 +131,28 @@ def main():
     valid_loader = DataLoader(TXTDataset('/nfs_shared/food/meta/test.txt', classes, root, transform=transform['valid']),
                               batch_size=args.batch_size, num_workers=4, shuffle=True)
 
-    model = Resnet152(freeze=False).cuda()
+    model = Resnet152(freeze=True).cuda()
     writer.add_graph(model, torch.rand((2, 3, 224, 224)).cuda())
     model = nn.DataParallel(model)
     criterion = nn.CrossEntropyLoss()
 
-    # print([k for k, p in model.named_parameters() if p.requires_grad])
-
+    print([k for k, p in model.named_parameters() if p.requires_grad])
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()),
                            lr=args.learning_rate,
                            weight_decay=args.weight_decay)
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[20, 40, 80], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30, 50], gamma=0.1)
 
-    best_acc = 0.0
+    best_prec = 0.0
     for ep in range(1, 100, 1):
         _, _ = train(model, train_loader, criterion, optimizer, ep)
-        loss, acc = valid(model, valid_loader, criterion, ep)
+        loss, prec = valid(model, valid_loader, criterion, ep)
         scheduler.step()
-        if acc > best_acc:
-            best_acc = acc
+        if prec > best_prec:
+            best_prec = prec
             torch.save({'model_state_dict': model.module.state_dict(),
                         'optim_state_dict': optimizer.state_dict(),
-                        'epoch': ep, 'accuracy': acc, 'loss': loss.avg},
-                       f'{log_dir}/state_{ep}_acc_{acc:.2f}_loss_{loss.avg:.2f}.pt')
+                        'epoch': ep, 'precision': prec, 'loss': loss.avg},
+                       f'{log_dir}/state_{ep}_prec_{prec:.2f}_loss_{loss.avg:.2f}.pt')
 
 
 if __name__ == '__main__':

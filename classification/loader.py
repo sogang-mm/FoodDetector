@@ -36,6 +36,10 @@ class TXTDataset(Dataset):
 
         return l
 
+    def get_labels(self):
+        return list(self.labels.keys())
+
+
     def __len__(self):
         return len(self.l)
 

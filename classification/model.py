@@ -43,7 +43,11 @@ class Resnet152(nn.Module):
         self.features = nn.Sequential(OrderedDict([*list(models.resnet152(pretrained=True).named_children())[:-2]]))
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(2048, 101+150)
+        self.fc = nn.Sequential(nn.Linear(2048, 1024),
+                                nn.ReLU(),
+                                nn.Dropout(0.2),
+                                nn.Linear(1024,101+150)
+                                )
 
         self.init_fc()
         if freeze:
@@ -79,7 +83,7 @@ class Mobilenet_v2(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.classifier = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(1280, 101),
+            nn.Linear(1280, 101+150),
         )
         self.init_fc()
         if freeze:
