@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
     frames = decode_video(video, frame_path=frame_path)
     # frames = [os.path.join(frame_path, f) for f in sorted(os.listdir(frame_path))]
-    # loader = DataLoader(ListDataset(frames, transform=transform), batch_size=16, shuffle=False, num_workers=2)
+    loader = DataLoader(ListDataset(frames, transform=transform), batch_size=16, shuffle=False, num_workers=2)
 
     food_loader = DataLoader(ListDataset([], transform=food_transform, load=False), batch_size=32, shuffle=False,
                              num_workers=2)
